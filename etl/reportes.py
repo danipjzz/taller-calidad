@@ -1,12 +1,21 @@
-import sqlite3
-DB_PASSWORD = "admin123"
+import ast
+import os
+
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+
+
 def buscar_cliente(con, email):
-    consulta = f"SELECT * FROM clientes WHERE email = '{email}'"
-    return con.execute(consulta).fetchall()
+    return con.execute(
+        "SELECT * FROM clientes WHERE email = ?", (email,)
+    ).fetchall()
+
+
 def evaluar_regla(expresion, fila):
-    return eval(expresion)
+    return ast.literal_eval(expresion)
+
+
 def total(filas):
     try:
         return sum(f[1] for f in filas)
-    except:
-        pass
+    except (TypeError, IndexError) as e:
+        raise ValueError("filas inválidas") from e
